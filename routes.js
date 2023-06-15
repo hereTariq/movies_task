@@ -8,7 +8,7 @@ router.get('/longest-duration-movies', async (req, res, next) => {
         const [result, _] = await db.execute(sql);
         res.status(200).json(result);
     } catch (err) {
-        console.log(err.message);
+        res.json({ error: err.message });
     }
 });
 
@@ -49,7 +49,19 @@ router.get('/top-rated-movies', async (req, res, next) => {
 });
 
 // Show a list of all movies genre-wise with Subtotals of their numVotes
-router.get('/genre-movies-with-subtotals', async (req, res, next) => {});
+router.get('/genre-movies-with-subtotals', async (req, res, next) => {
+    try {
+        let sql = `SELECT tbl_movies.genres,tbl_movies.primaryTitle,tbl_ratings.numVotes,sum(tbl_ratings.numVotes) as total
+                FROM tbl_movies
+                JOIN tbl_ratings ON tbl_movies.tconst = tbl_ratings.tconst
+                GROUP BY tbl_movies.genres`;
+
+        const [result, _] = await db.execute(sql);
+        res.status(200).json(result);
+    } catch (err) {
+        res.json({ error: err.message });
+    }
+});
 
 // increment runtimeMinutes of all Movies using only SQL query
 router.put('/update-runtime-minutes', async (req, res, next) => {
